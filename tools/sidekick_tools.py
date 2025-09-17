@@ -16,6 +16,7 @@ from langchain.agents import AgentType, initialize_agent
 from langchain_community.agent_toolkits.jira.toolkit import JiraToolkit
 from langchain_community.utilities.jira import JiraAPIWrapper
 from langchain_openai import OpenAI
+from utils.fetch_jira_issue_types import fetch_jira_issue_types
 
 
 load_dotenv(override=True)
@@ -75,8 +76,17 @@ def get_gmail_tools():
 
 def get_jira_tools():
     jira_tools = jira_toolkit.get_tools()
+    try:
+        availables_issue_types = fetch_jira_issue_types()
+    except Exception:
+        availables_issue_types = ["Ask a question", "Email request", "Submit a request or incident"]
+
     for t in jira_tools:
-        t.description += " — Use this tool for creating, searching, or updating Jira tickets."
+        t.description += (
+            " — Use this tool for creating, searching, or updating Jira tickets. "
+            f"Available ticket types for the project are: {', '.join(availables_issue_types)}. "
+            "The agent should automatically choose the most appropriate type based on the request."
+        )
     return jira_tools
 
 
