@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "atlassian-python-api>=4.0.7",
     "beautifulsoup4>=4.13.4",
     "gradio>=5.41.0",
     "langchain>=0.3.27",

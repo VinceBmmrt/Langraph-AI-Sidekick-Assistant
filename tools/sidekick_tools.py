@@ -11,12 +11,21 @@ from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_community.utilities.wikipedia import WikipediaAPIWrapper
 from langchain_google_community import GmailToolkit
 
+
+from langchain.agents import AgentType, initialize_agent
+from langchain_community.agent_toolkits.jira.toolkit import JiraToolkit
+from langchain_community.utilities.jira import JiraAPIWrapper
+from langchain_openai import OpenAI
+
+
 load_dotenv(override=True)
 pushover_token = os.getenv("PUSHOVER_TOKEN")
 pushover_user = os.getenv("PUSHOVER_USER")
 pushover_url = "https://api.pushover.net/1/messages.json"
 serper = GoogleSerperAPIWrapper()
 gmail_toolkit = GmailToolkit()
+jira = JiraAPIWrapper()
+jira_toolkit = JiraToolkit.from_jira_api_wrapper(jira)
 
 
 async def get_playwright_tools():
@@ -64,6 +73,12 @@ def get_wikipedia_tools():
 def get_gmail_tools():
     return gmail_toolkit.get_tools()
 
+def get_jira_tools():
+    jira_tools = jira_toolkit.get_tools()
+    for t in jira_tools:
+        t.description += " — Use this tool for creating, searching, or updating Jira tickets."
+    return jira_tools
+
 
 def get_python_repl_tools():
     return [PythonREPLTool()]
@@ -76,5 +91,6 @@ async def get_all_tools():
     wikipedia_tools = get_wikipedia_tools()
     gmail_tools = get_gmail_tools()
     python_repl_tools = get_python_repl_tools()
+    jira_tools = get_jira_tools()
 
-    return file_tools + push_tools + search_tools + wikipedia_tools + gmail_tools + python_repl_tools
+    return file_tools + push_tools + search_tools + wikipedia_tools + gmail_tools + jira_tools + python_repl_tools
